@@ -1,13 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCw, Play } from "lucide-react";
 
 interface ConfigPanelProps {
@@ -56,7 +50,7 @@ const ConfigPanel = ({
               <SelectItem value="Balenciaga">Balenciaga</SelectItem>
               <SelectItem value="Saint Laurent">Saint Laurent</SelectItem>
               <SelectItem value="Bottega Veneta">Bottega Veneta</SelectItem>
-              <SelectItem value="Alexander McQueen">Alexander McQueen</SelectItem>
+              <SelectItem value="LV">LV</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -124,12 +118,7 @@ const ConfigPanel = ({
             <Play className="w-4 h-4 mr-2" />
             开始训练
           </Button>
-          <Button
-            variant="ghost"
-            onClick={onReset}
-            disabled={disabled}
-            className="w-full"
-          >
+          <Button variant="ghost" onClick={onReset} disabled={disabled} className="w-full">
             <RefreshCw className="w-4 h-4 mr-2" />
             重置配置
           </Button>
