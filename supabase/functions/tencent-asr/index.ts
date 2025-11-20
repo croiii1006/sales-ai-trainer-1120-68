@@ -95,14 +95,29 @@ serve(async (req) => {
     const host = "asr.tencentcloudapi.com";
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // 构建请求体
+    // 计算原始数据长度（Base64 解码后的长度）
+    const audioBuffer = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    const dataLen = audioBuffer.length;
+    
+    console.log('Audio data length:', dataLen, 'bytes');
+    
+    // 构建请求体 - 使用正确的参数名
     const payload = JSON.stringify({
-      EngineModelType: "16k_zh",
+      EngSerViceType: "16k_zh",  // 修正：EngSerViceType 而不是 EngineModelType
+      SourceType: 1,
+      VoiceFormat: "webm",  // 添加：必需参数
+      Data: audio,  // base64 编码的音频数据
+      DataLen: dataLen,  // 添加：必需参数，原始数据长度
       ChannelNum: 1,
       ResTextFormat: 0,
-      SourceType: 1,
-      Data: audio, // base64 编码的音频数据
     });
+
+    console.log('Request payload:', JSON.stringify({
+      EngSerViceType: "16k_zh",
+      SourceType: 1,
+      VoiceFormat: "webm",
+      DataLen: dataLen,
+    }));
 
     // 生成签名
     const authorization = await generateSignature(
