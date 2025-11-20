@@ -8,11 +8,13 @@ const corsHeaders = {
 // 获取阿里云 Access Token
 async function getAccessToken(accessKeyId: string, accessKeySecret: string): Promise<string> {
   const tokenUrl = 'https://nls-meta.cn-shanghai.aliyuncs.com/pop/2018-05-18/tokens';
+  const date = new Date().toUTCString();
   
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      'Date': date, // 阿里云要求必须有Date头
     },
     body: new URLSearchParams({
       AccessKeyId: accessKeyId,
