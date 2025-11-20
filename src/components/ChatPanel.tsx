@@ -68,13 +68,13 @@ const ChatPanel = ({
       <div className="border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="border-primary/50 text-primary">
+            <Badge variant="outline" className="border-primary/50 text-foreground">
               {persona || "未选择"}
             </Badge>
-            <Badge variant="outline" className="border-accent/50 text-accent-foreground">
+            <Badge variant="outline" className="border-accent/50 text-foreground">
               {scenario || "未选择"}
             </Badge>
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="text-foreground">
               {difficulty || "未选择"}
             </Badge>
           </div>
