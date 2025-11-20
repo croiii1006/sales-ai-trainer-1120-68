@@ -11,9 +11,11 @@ import {
 import { RefreshCw, Play } from "lucide-react";
 
 interface ConfigPanelProps {
+  brand: string;
   persona: string;
   scenario: string;
   difficulty: string;
+  onBrandChange: (value: string) => void;
   onPersonaChange: (value: string) => void;
   onScenarioChange: (value: string) => void;
   onDifficultyChange: (value: string) => void;
@@ -23,9 +25,11 @@ interface ConfigPanelProps {
 }
 
 const ConfigPanel = ({
+  brand,
   persona,
   scenario,
   difficulty,
+  onBrandChange,
   onPersonaChange,
   onScenarioChange,
   onDifficultyChange,
@@ -39,6 +43,24 @@ const ConfigPanel = ({
         <CardTitle className="text-lg font-semibold">训练配置</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="brand" className="text-sm font-medium">
+            品牌 Brand
+          </Label>
+          <Select value={brand} onValueChange={onBrandChange} disabled={disabled}>
+            <SelectTrigger id="brand" className="bg-secondary border-border">
+              <SelectValue placeholder="请选择训练品牌" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="Gucci">Gucci</SelectItem>
+              <SelectItem value="Balenciaga">Balenciaga</SelectItem>
+              <SelectItem value="Saint Laurent">Saint Laurent</SelectItem>
+              <SelectItem value="Bottega Veneta">Bottega Veneta</SelectItem>
+              <SelectItem value="Alexander McQueen">Alexander McQueen</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="persona" className="text-sm font-medium">
             顾客画像
@@ -96,7 +118,7 @@ const ConfigPanel = ({
         <div className="pt-4 space-y-3 border-t border-border">
           <Button
             onClick={onStart}
-            disabled={disabled || !persona || !scenario || !difficulty}
+            disabled={disabled || !brand || !persona || !scenario || !difficulty}
             className="w-full bg-gradient-gold hover:opacity-90 text-luxury-black font-semibold"
           >
             <Play className="w-4 h-4 mr-2" />
