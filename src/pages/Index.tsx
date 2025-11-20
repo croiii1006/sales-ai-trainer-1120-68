@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import ConfigPanel from "@/components/ConfigPanel";
 import ChatPanel from "@/components/ChatPanel";
@@ -40,19 +40,41 @@ const Index = () => {
   // MVP 版本：录音和轮次状态
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState("00:00");
+  const [recordingStartTime, setRecordingStartTime] = useState<number | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
   const totalRounds = 6;
+
+  // 录音计时器
+  useEffect(() => {
+    let intervalId: number | undefined;
+    
+    if (isRecording && recordingStartTime) {
+      intervalId = window.setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        setRecordingTime(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isRecording, recordingStartTime]);
 
   // TODO: 接入后端/大模型 - 预留录制相关函数
   const handleStartRecording = () => {
     setIsRecording(true);
-    // TODO: 实现真实录音逻辑
+    setRecordingStartTime(Date.now());
+    setRecordingTime("00:00");
     console.log("开始录音");
   };
 
   const handleStopRecording = () => {
     setIsRecording(false);
-    // TODO: 实现停止录音逻辑
+    setRecordingStartTime(null);
     console.log("停止录音");
   };
 
