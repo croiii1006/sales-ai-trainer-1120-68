@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/hooks/use-theme";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import EmployeeLayout from "@/components/layouts/EmployeeLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
@@ -30,60 +31,62 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/auth" element={<Auth />} />
+    <ThemeProvider defaultTheme="dark" storageKey="sales-training-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/auth" element={<Auth />} />
 
-            {/* Role-based redirect */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <RoleRedirect />
-                </ProtectedRoute>
-              }
-            />
+              {/* Role-based redirect */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <RoleRedirect />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Employee routes */}
-            <Route
-              element={
-                <ProtectedRoute requiredRole="employee">
-                  <EmployeeLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/courses/:chapterId" element={<ChapterDetail />} />
-              <Route path="/simulation" element={<Simulation />} />
-              <Route path="/reports" element={<Reports />} />
-            </Route>
+              {/* Employee routes */}
+              <Route
+                element={
+                  <ProtectedRoute requiredRole="employee">
+                    <EmployeeLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/courses/:chapterId" element={<ChapterDetail />} />
+                <Route path="/simulation" element={<Simulation />} />
+                <Route path="/reports" element={<Reports />} />
+              </Route>
 
-            {/* Admin routes */}
-            <Route
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/courses" element={<AdminCourses />} />
-              <Route path="/admin/materials" element={<AdminMaterials />} />
-              <Route path="/admin/employees" element={<AdminEmployees />} />
-              <Route path="/admin/teams" element={<AdminTeams />} />
-            </Route>
+              {/* Admin routes */}
+              <Route
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/courses" element={<AdminCourses />} />
+                <Route path="/admin/materials" element={<AdminMaterials />} />
+                <Route path="/admin/employees" element={<AdminEmployees />} />
+                <Route path="/admin/teams" element={<AdminTeams />} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

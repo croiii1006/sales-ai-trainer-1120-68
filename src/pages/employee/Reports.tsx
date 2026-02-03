@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { 
-  BarChart3, 
   TrendingUp, 
-  TrendingDown, 
   Target,
   Award,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import {
   RadarChart,
@@ -26,6 +27,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Cell,
 } from "recharts";
 
 interface SimulationSession {
@@ -56,16 +58,101 @@ const dimensionLabels: Record<string, string> = {
   closingSkill: "成交引导",
 };
 
+// Mock data for demonstration
+const mockSessions: SimulationSession[] = [
+  {
+    id: "1",
+    overall_score: 85,
+    dimension_scores: { needsDiscovery: 88, productKnowledge: 92, objectionHandling: 78, emotionalConnection: 85, closingSkill: 82 },
+    feedback: "表现出色！在产品知识方面展现了深厚的功底，建议在异议处理上多加练习，学会用更柔和的方式化解客户疑虑。",
+    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "2",
+    overall_score: 78,
+    dimension_scores: { needsDiscovery: 75, productKnowledge: 85, objectionHandling: 72, emotionalConnection: 80, closingSkill: 78 },
+    feedback: "整体表现良好，需求挖掘还可以更深入，试着多问开放式问题。",
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "3",
+    overall_score: 82,
+    dimension_scores: { needsDiscovery: 85, productKnowledge: 88, objectionHandling: 75, emotionalConnection: 82, closingSkill: 80 },
+    feedback: null,
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "4",
+    overall_score: 72,
+    dimension_scores: { needsDiscovery: 70, productKnowledge: 78, objectionHandling: 68, emotionalConnection: 75, closingSkill: 69 },
+    feedback: null,
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "5",
+    overall_score: 88,
+    dimension_scores: { needsDiscovery: 90, productKnowledge: 92, objectionHandling: 85, emotionalConnection: 88, closingSkill: 85 },
+    feedback: "进步明显！成交引导技巧有很大提升。",
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "6",
+    overall_score: 75,
+    dimension_scores: { needsDiscovery: 72, productKnowledge: 80, objectionHandling: 70, emotionalConnection: 78, closingSkill: 75 },
+    feedback: null,
+    created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Circular progress component
+const CircularProgress = ({ value, size = 80, strokeWidth = 6 }: { value: number; size?: number; strokeWidth?: number }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="none"
+          className="text-muted"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-500"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-lg font-bold">{value}%</span>
+      </div>
+    </div>
+  );
+};
+
 const Reports = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<SimulationSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [useMockData, setUseMockData] = useState(false);
 
   useEffect(() => {
     const fetchSessions = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("simulation_sessions")
         .select("id, overall_score, dimension_scores, feedback, created_at")
         .eq("user_id", user.id)
@@ -82,37 +169,40 @@ const Reports = () => {
     fetchSessions();
   }, [user]);
 
+  // Use mock data if enabled or if no real data exists
+  const displaySessions = useMemo(() => {
+    if (useMockData || sessions.length === 0) {
+      return mockSessions;
+    }
+    return sessions;
+  }, [sessions, useMockData]);
+
+  const isMockMode = useMockData || sessions.length === 0;
+
   if (loading) {
     return (
       <div className="p-6 space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
-      </div>
-    );
-  }
-
-  if (sessions.length === 0) {
-    return (
-      <div className="p-6 flex flex-col items-center justify-center min-h-[400px] text-center">
-        <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">暂无评估数据</h2>
-        <p className="text-muted-foreground">
-          完成实战模拟后，您的能力报告将在这里显示
-        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
+        </div>
       </div>
     );
   }
 
   // Calculate averages
   const avgScore = Math.round(
-    sessions.reduce((sum, s) => sum + (s.overall_score || 0), 0) / sessions.length
+    displaySessions.reduce((sum, s) => sum + (s.overall_score || 0), 0) / displaySessions.length
   );
 
   const dimensionAverages: Record<string, number[]> = {};
-  sessions.forEach((s) => {
+  displaySessions.forEach((s) => {
     if (s.dimension_scores) {
       Object.entries(s.dimension_scores).forEach(([key, value]) => {
         if (!dimensionAverages[key]) dimensionAverages[key] = [];
@@ -135,7 +225,7 @@ const Reports = () => {
   const weaknesses = sortedDimensions.slice(-2).reverse();
 
   // Score trend
-  const trendData = sessions
+  const trendData = displaySessions
     .slice(0, 10)
     .reverse()
     .map((s, index) => ({
@@ -143,67 +233,99 @@ const Reports = () => {
       score: s.overall_score || 0,
     }));
 
-  const recentTrend = sessions.length >= 2 
-    ? (sessions[0].overall_score || 0) - (sessions[1].overall_score || 0)
+  const recentTrend = displaySessions.length >= 2 
+    ? (displaySessions[0].overall_score || 0) - (displaySessions[1].overall_score || 0)
     : 0;
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold mb-2">能力报告</h1>
-        <p className="text-muted-foreground">
-          基于 {sessions.length} 次实战模拟的综合分析
-        </p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold mb-1">能力报告</h1>
+          <p className="text-muted-foreground">
+            基于 {displaySessions.length} 次实战模拟的综合分析
+          </p>
+        </div>
+        
+        {/* Mock data toggle */}
+        <div className="flex items-center gap-2">
+          {isMockMode && (
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
+              <Sparkles className="h-3 w-3 mr-1" />
+              演示数据
+            </Badge>
+          )}
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="mock-mode"
+              checked={useMockData}
+              onCheckedChange={setUseMockData}
+            />
+            <Label htmlFor="mock-mode" className="text-sm text-muted-foreground">
+              演示模式
+            </Label>
+          </div>
+        </div>
       </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="shadow-card">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">平均得分</p>
-                <p className="text-3xl font-bold">{avgScore}</p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Target className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">最近趋势</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-3xl font-bold">
-                    {recentTrend > 0 ? "+" : ""}{recentTrend}
-                  </p>
-                  {recentTrend > 0 ? (
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                  ) : recentTrend < 0 ? (
-                    <TrendingDown className="h-5 w-5 text-red-500" />
-                  ) : null}
+                <p className="text-sm text-muted-foreground mb-1">平均得分</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold">{avgScore}</p>
+                  <span className="text-sm text-muted-foreground">/ 100</span>
                 </div>
               </div>
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-primary" />
+              <CircularProgress value={avgScore} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-card">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">最近趋势</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-4xl font-bold">
+                    {recentTrend > 0 ? "+" : ""}{recentTrend}
+                  </p>
+                  {recentTrend > 0 && (
+                    <span className="text-sm text-green-500 font-medium">
+                      +{Math.abs(recentTrend)}%
+                    </span>
+                  )}
+                  {recentTrend < 0 && (
+                    <span className="text-sm text-destructive font-medium">
+                      {recentTrend}%
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-8 w-8 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-card">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">模拟次数</p>
-                <p className="text-3xl font-bold">{sessions.length}</p>
+                <p className="text-sm text-muted-foreground mb-1">模拟次数</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold">{displaySessions.length}</p>
+                  <span className="text-sm text-muted-foreground">次</span>
+                </div>
               </div>
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Award className="h-6 w-6 text-primary" />
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <Target className="h-8 w-8 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -213,7 +335,7 @@ const Reports = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Radar Chart */}
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
             <CardTitle>能力雷达图</CardTitle>
             <CardDescription>各维度平均得分分析</CardDescription>
@@ -222,9 +344,12 @@ const Reports = () => {
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis 
+                    dataKey="dimension" 
+                    tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }} 
+                  />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))" }} />
                   <Radar
                     name="得分"
                     dataKey="score"
@@ -238,21 +363,51 @@ const Reports = () => {
           </CardContent>
         </Card>
 
-        {/* Score Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>得分趋势</CardTitle>
-            <CardDescription>最近 10 次模拟得分</CardDescription>
+        {/* Score Trend - Bar Chart */}
+        <Card className="shadow-card">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>得分趋势</CardTitle>
+              <CardDescription>最近 {trendData.length} 次模拟得分</CardDescription>
+            </div>
+            <Badge variant="secondary" className="bg-muted">
+              过去 30 天
+            </Badge>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="index" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Bar dataKey="score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <BarChart data={trendData} barCategoryGap="20%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis 
+                    dataKey="index" 
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    domain={[0, 100]} 
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      color: "hsl(var(--foreground))"
+                    }}
+                    formatter={(value: number) => [`${value} 分`, "得分"]}
+                  />
+                  <Bar dataKey="score" radius={[6, 6, 0, 0]}>
+                    {trendData.map((_, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={index === trendData.length - 1 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.3)"}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -262,45 +417,41 @@ const Reports = () => {
 
       {/* Strengths & Weaknesses */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-500">
+            <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-500">
               <Award className="h-5 w-5" />
               优势能力
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {strengths.map((s) => (
-              <div key={s.dimension} className="space-y-2">
-                <div className="flex items-center justify-between">
+              <div key={s.dimension} className="flex items-center gap-4">
+                <CircularProgress value={s.score} size={56} strokeWidth={4} />
+                <div className="flex-1">
                   <span className="font-medium">{s.dimension}</span>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-500">
-                    {s.score} 分
-                  </Badge>
+                  <Progress value={s.score} className="h-2 mt-2" indicatorClassName="bg-green-500" />
                 </div>
-                <Progress value={s.score} className="h-2" />
               </div>
             ))}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-500">
+            <CardTitle className="flex items-center gap-2 text-primary">
               <AlertCircle className="h-5 w-5" />
               待提升能力
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {weaknesses.map((s) => (
-              <div key={s.dimension} className="space-y-2">
-                <div className="flex items-center justify-between">
+              <div key={s.dimension} className="flex items-center gap-4">
+                <CircularProgress value={s.score} size={56} strokeWidth={4} />
+                <div className="flex-1">
                   <span className="font-medium">{s.dimension}</span>
-                  <Badge variant="secondary" className="bg-orange-500/10 text-orange-500">
-                    {s.score} 分
-                  </Badge>
+                  <Progress value={s.score} className="h-2 mt-2" indicatorClassName="bg-primary" />
                 </div>
-                <Progress value={s.score} className="h-2" />
               </div>
             ))}
           </CardContent>
@@ -308,17 +459,22 @@ const Reports = () => {
       </div>
 
       {/* Recent Feedback */}
-      {sessions[0]?.feedback && (
-        <Card>
+      {displaySessions[0]?.feedback && (
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>最新反馈</CardTitle>
-            <CardDescription>
-              来自最近一次模拟的 AI 教练建议
-            </CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <CardTitle>AI 教练建议</CardTitle>
+                <CardDescription>来自最近一次模拟的反馈</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground whitespace-pre-wrap">
-              {sessions[0].feedback}
+            <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+              {displaySessions[0].feedback}
             </p>
           </CardContent>
         </Card>

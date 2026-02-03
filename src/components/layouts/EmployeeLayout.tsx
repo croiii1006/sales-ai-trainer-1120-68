@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -22,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   Sparkles, 
   BookOpen, 
@@ -122,9 +122,10 @@ const EmployeeLayout = () => {
         <main className="flex-1 flex flex-col">
           <header className="h-14 border-b border-border flex items-center px-4">
             <SidebarTrigger className="mr-4" />
-            <h2 className="font-semibold">
+            <h2 className="font-semibold flex-1">
               {menuItems.find((item) => location.pathname.startsWith(item.url))?.title || "首页"}
             </h2>
+            <ThemeToggle />
           </header>
           <div className="flex-1 overflow-auto">
             <Outlet />

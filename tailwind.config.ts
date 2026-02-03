@@ -48,8 +48,8 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         luxury: {
-          gold: "hsl(45 100% 51%)",
-          "gold-dark": "hsl(38 92% 50%)",
+          gold: "hsl(24 95% 53%)",
+          "gold-dark": "hsl(17 90% 50%)",
           black: "hsl(0 0% 6%)",
           "black-light": "hsl(0 0% 10%)",
         },
