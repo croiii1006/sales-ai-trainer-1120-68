@@ -237,7 +237,7 @@ const ChapterDetail = () => {
         >
           <HelpCircle className="h-4 w-4" />
           章节测试
-          {progress?.quiz_score !== null && progress.quiz_score >= 60 && (
+          {progress?.quiz_score != null && progress.quiz_score >= 60 && (
             <CheckCircle className="h-4 w-4 text-green-500" />
           )}
         </Button>
