@@ -85,7 +85,7 @@ const ChapterDetail = () => {
         supabase.from("course_chapters").select("*").eq("id", chapterId).single(),
         supabase.from("course_videos").select("*").eq("chapter_id", chapterId).order("order_index"),
         supabase.from("quiz_questions").select("*").eq("chapter_id", chapterId).order("order_index"),
-        supabase.from("learning_progress").select("*").eq("user_id", user.id).eq("chapter_id", chapterId).single(),
+        supabase.from("learning_progress").select("*").eq("user_id", user.id).eq("chapter_id", chapterId).maybeSingle(),
       ]);
 
       if (chapterRes.data) setChapter(chapterRes.data);
