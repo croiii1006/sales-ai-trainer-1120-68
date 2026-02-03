@@ -245,7 +245,7 @@ const Reports = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">平均得分</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold">{avgScore}</p>
+                  <p className="font-bold text-2xl">{avgScore}</p>
                   <span className="text-sm text-muted-foreground">/ 100</span>
                 </div>
               </div>
@@ -260,7 +260,7 @@ const Reports = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">最近趋势</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-4xl font-bold">
+                  <p className="font-bold text-2xl">
                     {recentTrend > 0 ? "+" : ""}{recentTrend}
                   </p>
                   {recentTrend > 0 && <span className="text-sm text-green-500 font-medium">
@@ -284,7 +284,7 @@ const Reports = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">模拟次数</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold">{displaySessions.length}</p>
+                  <p className="font-bold text-2xl">{displaySessions.length}</p>
                   <span className="text-sm text-muted-foreground">次</span>
                 </div>
               </div>
