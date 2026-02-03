@@ -8,7 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Luxury brand theme - Black, White, Gold */
+    /* Light mode - Clean modern dashboard */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 94%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.75rem;
+
+    /* Luxury gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(24 95% 53%), hsl(17 90% 50%));
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
+    
+    /* Luxury shadows */
+    --shadow-luxury: 0 4px 24px -4px hsl(24 95% 53% / 0.15);
+    --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.08);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Dark mode - Luxury brand theme */
     --background: 0 0% 6%;
     --foreground: 0 0% 96%;
 
@@ -18,8 +62,8 @@ All colors MUST be HSL.
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 96%;
 
-    --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 96%;
@@ -27,28 +71,23 @@ All colors MUST be HSL.
     --muted: 0 0% 20%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 45 100% 51%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 96%;
 
     --border: 0 0% 20%;
     --input: 0 0% 15%;
-    --ring: 45 100% 51%;
+    --ring: 24 95% 53%;
 
-    --radius: 0.75rem;
-
-    /* Luxury gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
+    /* Dark luxury gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(24 95% 53%), hsl(17 90% 50%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 6%));
     
-    /* Luxury shadows */
-    --shadow-luxury: 0 4px 24px -4px hsl(45 100% 51% / 0.15);
+    /* Dark luxury shadows */
+    --shadow-luxury: 0 4px 24px -4px hsl(24 95% 53% / 0.15);
     --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.4);
-    
-    /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
