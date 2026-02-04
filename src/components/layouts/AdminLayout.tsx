@@ -27,7 +27,6 @@ import {
   BookOpen,
   FileText,
   Users,
-  Building2,
   LogOut,
   User,
   ChevronDown,
@@ -38,7 +37,6 @@ const menuItems = [
   { title: "课程管理", url: "/admin/courses", icon: BookOpen },
   { title: "培训资料", url: "/admin/materials", icon: FileText },
   { title: "员工管理", url: "/admin/employees", icon: Users },
-  { title: "团队管理", url: "/admin/teams", icon: Building2 },
 ];
 
 const AdminLayout = () => {
