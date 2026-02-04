@@ -51,11 +51,10 @@ export const PERSONA_MAP: Record<string, string> = {
 };
 
 export const SCENARIO_MAP: Record<string, string> = {
-  "首次进店": "FIRST_VISIT",
-  "VIP 回访": "VIP_RETURN",
-  "购买送老板的礼物": "GIFT_FOR_BOSS",
-  "机场免税店场景": "DUTY_FREE",
-  "线上咨询": "ONLINE_CONSULT",
+  "首次触达": "FIRST_CONTACT",
+  "需求挖掘": "NEEDS_DISCOVERY",
+  "异议处理": "OBJECTION_HANDLING",
+  "成交推进": "CLOSING",
 };
 
 export const DIFFICULTY_MAP: Record<string, string> = {
