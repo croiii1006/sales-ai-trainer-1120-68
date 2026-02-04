@@ -21,6 +21,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   Sparkles, 
@@ -30,12 +35,18 @@ import {
   LogOut,
   User,
   ChevronDown,
+  History,
+  FileText,
 } from "lucide-react";
 
 const menuItems = [
   { title: "网课学习", url: "/courses", icon: BookOpen },
   { title: "实战模拟", url: "/simulation", icon: Swords },
-  { title: "能力报告", url: "/reports", icon: BarChart3 },
+];
+
+const scoreMenuItems = [
+  { title: "能力报告", url: "/reports", icon: FileText },
+  { title: "历史记录", url: "/history", icon: History },
 ];
 
 const EmployeeLayout = () => {
@@ -49,6 +60,17 @@ const EmployeeLayout = () => {
   };
 
   const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
+
+  const isScoreActive = location.pathname === "/reports" || location.pathname === "/history";
+
+  const getPageTitle = () => {
+    if (location.pathname === "/history") return "历史记录";
+    const item = menuItems.find((item) => location.pathname.startsWith(item.url));
+    if (item) return item.title;
+    const scoreItem = scoreMenuItems.find((item) => location.pathname.startsWith(item.url));
+    if (scoreItem) return scoreItem.title;
+    return "首页";
+  };
 
   return (
     <SidebarProvider>
@@ -87,6 +109,40 @@ const EmployeeLayout = () => {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+                  
+                  {/* 评分与能力 - 悬停下拉菜单 */}
+                  <SidebarMenuItem>
+                    <HoverCard openDelay={0} closeDelay={100}>
+                      <HoverCardTrigger asChild>
+                        <SidebarMenuButton asChild>
+                          <div 
+                            className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer ${
+                              isScoreActive ? "bg-muted text-primary font-medium" : ""
+                            }`}
+                          >
+                            <BarChart3 className="h-5 w-5" />
+                            <span>评分与能力</span>
+                            <ChevronDown className="h-4 w-4 ml-auto" />
+                          </div>
+                        </SidebarMenuButton>
+                      </HoverCardTrigger>
+                      <HoverCardContent side="right" align="start" className="w-48 p-1">
+                        {scoreMenuItems.map((item) => (
+                          <Button
+                            key={item.url}
+                            variant="ghost"
+                            className={`w-full justify-start gap-2 ${
+                              location.pathname === item.url ? "bg-muted text-primary" : ""
+                            }`}
+                            onClick={() => navigate(item.url)}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            {item.title}
+                          </Button>
+                        ))}
+                      </HoverCardContent>
+                    </HoverCard>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -122,9 +178,7 @@ const EmployeeLayout = () => {
         <main className="flex-1 flex flex-col">
           <header className="h-14 border-b border-border flex items-center px-4">
             <SidebarTrigger className="mr-4" />
-            <h2 className="font-semibold flex-1">
-              {menuItems.find((item) => location.pathname.startsWith(item.url))?.title || "首页"}
-            </h2>
+            <h2 className="font-semibold flex-1">{getPageTitle()}</h2>
             <ThemeToggle />
           </header>
           <div className="flex-1 overflow-auto">
