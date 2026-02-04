@@ -20,6 +20,7 @@ import ChapterDetail from "./pages/employee/ChapterDetail";
 import Simulation from "./pages/employee/Simulation";
 import Reports from "./pages/employee/Reports";
 import History from "./pages/employee/History";
+import HistoryDetail from "./pages/employee/HistoryDetail";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/simulation" element={<Simulation />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/history" element={<History />} />
+                <Route path="/history/:sessionId" element={<HistoryDetail />} />
               </Route>
 
               {/* Admin routes */}

@@ -7,36 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ArrowLeft, 
-  MessageSquare, 
   TrendingUp, 
   TrendingDown,
   Minus,
   Clock,
-  Target,
-  MessageCircle,
-  Sparkles,
   ChevronRight,
-  User,
-  Bot
+  MessageSquare
 } from "lucide-react";
-import { 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  PolarRadiusAxis, 
-  Radar, 
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend
-} from "recharts";
 
 interface Message {
   role: "user" | "assistant";
@@ -62,14 +41,6 @@ interface SimulationSession {
   persona: string;
   brand: string;
 }
-
-const dimensionLabels: Record<string, string> = {
-  needsDiscovery: "需求挖掘",
-  productKnowledge: "产品知识",
-  objectionHandling: "异议处理",
-  emotionalConnection: "情绪连接",
-  closingSkill: "成交引导"
-};
 
 // Mock data for demonstration
 const mockSessions: SimulationSession[] = [
@@ -127,12 +98,46 @@ const mockSessions: SimulationSession[] = [
       emotionalConnection: 82,
       closingSkill: 80
     },
-    feedback: null,
+    feedback: "对客户情绪把握准确，产品介绍清晰流畅。",
     messages: [],
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     scenario: "价格敏感客户",
     persona: "理性消费者",
     brand: "经典系列"
+  },
+  {
+    id: "4",
+    overall_score: 72,
+    dimension_scores: {
+      needsDiscovery: 70,
+      productKnowledge: 78,
+      objectionHandling: 68,
+      emotionalConnection: 75,
+      closingSkill: 69
+    },
+    feedback: "异议处理需要加强，可以更耐心地倾听客户疑虑。",
+    messages: [],
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    scenario: "异议处理训练",
+    persona: "挑剔型客户",
+    brand: "限量系列"
+  },
+  {
+    id: "5",
+    overall_score: 88,
+    dimension_scores: {
+      needsDiscovery: 90,
+      productKnowledge: 92,
+      objectionHandling: 85,
+      emotionalConnection: 88,
+      closingSkill: 85
+    },
+    feedback: "进步明显！成交引导技巧有很大提升。",
+    messages: [],
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    scenario: "成交引导训练",
+    persona: "犹豫型客户",
+    brand: "新品系列"
   }
 ];
 
@@ -141,9 +146,6 @@ const History = () => {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SimulationSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSession, setSelectedSession] = useState<SimulationSession | null>(null);
-  const [compareMode, setCompareMode] = useState(false);
-  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -173,44 +175,20 @@ const History = () => {
 
   const displaySessions = sessions.length > 0 ? sessions : mockSessions;
 
-  // 计算趋势数据
-  const trendData = displaySessions.slice(0, 10).reverse().map((s, index) => {
-    const scores: Record<string, number> = { index: index + 1 };
-    if (s.dimension_scores) {
-      Object.entries(s.dimension_scores).forEach(([key, value]) => {
-        if (typeof value === 'number') {
-          scores[dimensionLabels[key] || key] = value;
-        }
-      });
-    }
-    return scores;
-  });
-
-  // 计算个人历史均值
-  const avgScores: Record<string, number> = {};
-  displaySessions.forEach(s => {
-    if (s.dimension_scores) {
-      Object.entries(s.dimension_scores).forEach(([key, value]) => {
-        if (typeof value === 'number') {
-          if (!avgScores[key]) avgScores[key] = 0;
-          avgScores[key] += value;
-        }
-      });
-    }
-  });
-  Object.keys(avgScores).forEach(key => {
-    avgScores[key] = Math.round(avgScores[key] / displaySessions.length);
-  });
-
-  const radarData = Object.entries(avgScores).map(([key, value]) => ({
-    dimension: dimensionLabels[key] || key,
-    个人均值: value,
-    fullMark: 100
-  }));
-
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleDateString("zh-CN", { 
+      year: "numeric",
+      month: "long", 
+      day: "numeric", 
+      hour: "2-digit", 
+      minute: "2-digit" 
+    });
+  };
+
+  const formatShortDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
   };
 
   const getScoreTrend = (index: number) => {
@@ -218,13 +196,20 @@ const History = () => {
     return (displaySessions[index].overall_score || 0) - (displaySessions[index + 1].overall_score || 0);
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return "text-green-500";
+    if (score >= 70) return "text-primary";
+    return "text-destructive";
+  };
+
   if (loading) {
     return (
       <div className="p-6 space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map(i => (
+            <Skeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     );
@@ -245,264 +230,74 @@ const History = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">能力趋势</TabsTrigger>
-          <TabsTrigger value="sessions">实战记录</TabsTrigger>
-          {selectedSession && <TabsTrigger value="detail">对话详情</TabsTrigger>}
-        </TabsList>
-
-        {/* 能力趋势对比 */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 趋势图 */}
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  维度能力趋势
-                </CardTitle>
-                <CardDescription>最近 {trendData.length} 次模拟的各维度变化</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="index" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <YAxis domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px"
-                        }}
-                      />
-                      <Legend />
-                      <Line type="monotone" dataKey="需求挖掘" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="产品知识" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="异议处理" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="情绪连接" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="成交引导" stroke="#ec4899" strokeWidth={2} dot={{ r: 4 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 个人均值雷达图 */}
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  个人历史均值
-                </CardTitle>
-                <CardDescription>基于全部记录的平均能力分布</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData}>
-                      <PolarGrid stroke="hsl(var(--border))" />
-                      <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                      <Radar name="个人均值" dataKey="个人均值" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* 实战记录列表 */}
-        <TabsContent value="sessions" className="space-y-4">
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                实战对话记录
-              </CardTitle>
-              <CardDescription>点击查看完整对话内容与AI评价批注</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[500px] pr-4">
-                <div className="space-y-3">
-                  {displaySessions.map((session, index) => {
-                    const trend = getScoreTrend(index);
-                    return (
-                      <div
-                        key={session.id}
-                        className="p-4 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-colors"
-                        onClick={() => {
-                          setSelectedSession(session);
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-lg font-bold text-primary">{session.overall_score}</span>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{session.scenario}</span>
-                                <Badge variant="secondary">{session.brand}</Badge>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                {formatDate(session.created_at)}
-                                <span>·</span>
-                                <span>{session.persona}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {trend !== 0 && (
-                              <div className={`flex items-center gap-1 text-sm ${trend > 0 ? "text-green-500" : "text-destructive"}`}>
-                                {trend > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                                {trend > 0 ? "+" : ""}{trend}
-                              </div>
-                            )}
-                            {trend === 0 && index < displaySessions.length - 1 && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Minus className="h-4 w-4" />
-                                0
-                              </div>
-                            )}
-                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                          </div>
+      {/* Sessions List */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            训练记录
+          </CardTitle>
+          <CardDescription>点击查看完整训练详情</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+            <div className="space-y-3">
+              {displaySessions.map((session, index) => {
+                const trend = getScoreTrend(index);
+                return (
+                  <div
+                    key={session.id}
+                    className="p-4 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-all hover:shadow-md"
+                    onClick={() => navigate(`/history/${session.id}`)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`h-14 w-14 rounded-full bg-muted flex items-center justify-center ${getScoreColor(session.overall_score || 0)}`}>
+                          <span className="text-xl font-bold">{session.overall_score}</span>
                         </div>
-                        {session.feedback && (
-                          <p className="mt-2 text-sm text-muted-foreground line-clamp-1">
-                            {session.feedback}
-                          </p>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-lg">{session.scenario}</span>
+                            <Badge variant="secondary">{session.brand}</Badge>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5" />
+                              {formatDate(session.created_at)}
+                            </div>
+                            <span>·</span>
+                            <span>{session.persona}</span>
+                          </div>
+                          {session.feedback && (
+                            <p className="text-sm text-muted-foreground line-clamp-1 max-w-md">
+                              {session.feedback}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {trend !== 0 && (
+                          <div className={`flex items-center gap-1 text-sm font-medium ${trend > 0 ? "text-green-500" : "text-destructive"}`}>
+                            {trend > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                            {trend > 0 ? "+" : ""}{trend}
+                          </div>
                         )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 对话详情 */}
-        {selectedSession && (
-          <TabsContent value="detail" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* 对话记录 */}
-              <Card className="shadow-card lg:col-span-2">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageCircle className="h-5 w-5 text-primary" />
-                        对话记录
-                      </CardTitle>
-                      <CardDescription>{selectedSession.scenario} - {formatDate(selectedSession.created_at)}</CardDescription>
-                    </div>
-                    <Badge variant="outline" className="text-lg px-3 py-1">
-                      {selectedSession.overall_score} 分
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[400px] pr-4">
-                    <div className="space-y-4">
-                      {selectedSession.messages && selectedSession.messages.length > 0 ? (
-                        selectedSession.messages.map((msg, index) => (
-                          <div key={index} className="space-y-2">
-                            <div className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                              <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
-                                msg.role === "user" ? "bg-primary" : "bg-muted"
-                              }`}>
-                                {msg.role === "user" ? (
-                                  <User className="h-4 w-4 text-primary-foreground" />
-                                ) : (
-                                  <Bot className="h-4 w-4 text-muted-foreground" />
-                                )}
-                              </div>
-                              <div className={`flex-1 max-w-[80%] ${msg.role === "user" ? "text-right" : ""}`}>
-                                <div className={`inline-block p-3 rounded-lg ${
-                                  msg.role === "user" 
-                                    ? "bg-primary text-primary-foreground" 
-                                    : "bg-muted"
-                                }`}>
-                                  <p className="text-sm">{msg.content}</p>
-                                </div>
-                                {msg.timestamp && (
-                                  <p className="text-xs text-muted-foreground mt-1">{msg.timestamp}</p>
-                                )}
-                              </div>
-                            </div>
-                            {msg.annotation && (
-                              <div className={`flex ${msg.role === "user" ? "justify-end mr-11" : "ml-11"}`}>
-                                <div className="bg-primary/10 border border-primary/20 rounded-lg p-2 max-w-[80%]">
-                                  <div className="flex items-center gap-2 text-xs text-primary mb-1">
-                                    <Sparkles className="h-3 w-3" />
-                                    AI 评价批注
-                                  </div>
-                                  <p className="text-sm">{msg.annotation}</p>
-                                </div>
-                              </div>
-                            )}
+                        {trend === 0 && index < displaySessions.length - 1 && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Minus className="h-4 w-4" />
+                            0
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-center text-muted-foreground py-8">
-                          暂无对话记录
-                        </div>
-                      )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-
-              {/* 评分摘要 */}
-              <Card className="shadow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    自动评分与摘要
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* 各维度得分 */}
-                  <div className="space-y-3">
-                    {selectedSession.dimension_scores && Object.entries(selectedSession.dimension_scores).map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>{dimensionLabels[key] || key}</span>
-                          <span className="font-medium">{value}</span>
-                        </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary transition-all"
-                            style={{ width: `${value}%` }}
-                          />
-                        </div>
+                        )}
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
                       </div>
-                    ))}
+                    </div>
                   </div>
-
-                  {/* AI 反馈 */}
-                  {selectedSession.feedback && (
-                    <div className="pt-4 border-t">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">AI 教练总结</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {selectedSession.feedback}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                );
+              })}
             </div>
-          </TabsContent>
-        )}
-      </Tabs>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 };
