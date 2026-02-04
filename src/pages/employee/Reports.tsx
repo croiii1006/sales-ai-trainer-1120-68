@@ -9,6 +9,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { TrendingUp, Target, Award, AlertCircle, Sparkles } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
+import ExportReportBar from "@/components/reports/ExportReportBar";
+import HistoryDialog from "@/components/reports/HistoryDialog";
+import { useReportExport } from "@/hooks/useReportExport";
 interface SimulationSession {
   id: string;
   overall_score: number | null;
@@ -140,6 +143,7 @@ const Reports = () => {
   const {
     user
   } = useAuth();
+  const { exportReport, isExporting } = useReportExport();
   const [sessions, setSessions] = useState<SimulationSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [useMockData, setUseMockData] = useState(false);
@@ -212,7 +216,23 @@ const Reports = () => {
     score: s.overall_score || 0
   }));
   const recentTrend = displaySessions.length >= 2 ? (displaySessions[0].overall_score || 0) - (displaySessions[1].overall_score || 0) : 0;
+
+  const handleExport = (format: 'html' | 'pdf') => {
+    exportReport(format, {
+      avgScore,
+      sessionCount: displaySessions.length,
+      recentTrend,
+      radarData,
+      strengths,
+      weaknesses,
+      feedback: displaySessions[0]?.feedback || undefined
+    });
+  };
+
   return <div className="p-6 space-y-6">
+      {/* Export Report Bar */}
+      <ExportReportBar onExport={handleExport} isExporting={isExporting} />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -330,9 +350,12 @@ const Reports = () => {
               <CardTitle>得分趋势</CardTitle>
               <CardDescription>最近 {trendData.length} 次模拟得分</CardDescription>
             </div>
-            <Badge variant="secondary" className="bg-muted">
-              过去 30 天
-            </Badge>
+            <div className="flex items-center gap-2">
+              <HistoryDialog sessions={displaySessions} />
+              <Badge variant="secondary" className="bg-muted">
+                过去 30 天
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
