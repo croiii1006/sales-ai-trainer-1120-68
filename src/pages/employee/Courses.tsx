@@ -227,7 +227,7 @@ const Courses = () => {
 
         <TabsContent value="courses" className="space-y-6 mt-4">
           {/* Overall Progress */}
-          <div className="py-4">
+          <div className="py-[41px] my-[24px]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">总体学习进度</span>
               <span className="text-sm text-muted-foreground">
