@@ -27,7 +27,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminCourses from "./pages/admin/Courses";
 import AdminMaterials from "./pages/admin/Materials";
 import AdminEmployees from "./pages/admin/Employees";
-import AdminTeams from "./pages/admin/Teams";
+
 
 const queryClient = new QueryClient();
 
@@ -81,7 +81,7 @@ const App = () => (
                 <Route path="/admin/courses" element={<AdminCourses />} />
                 <Route path="/admin/materials" element={<AdminMaterials />} />
                 <Route path="/admin/employees" element={<AdminEmployees />} />
-                <Route path="/admin/teams" element={<AdminTeams />} />
+                
               </Route>
 
               {/* 404 */}
