@@ -293,29 +293,41 @@ export type Database = {
       }
       training_materials: {
         Row: {
+          category: string | null
           created_at: string
           description: string | null
+          difficulty: string | null
           file_type: string
           file_url: string
           id: string
+          position: string | null
+          tags: string[] | null
           title: string
           uploaded_by: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
           file_type: string
           file_url: string
           id?: string
+          position?: string | null
+          tags?: string[] | null
           title: string
           uploaded_by?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
           file_type?: string
           file_url?: string
           id?: string
+          position?: string | null
+          tags?: string[] | null
           title?: string
           uploaded_by?: string | null
         }
