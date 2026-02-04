@@ -25,7 +25,7 @@ import HistoryDetail from "./pages/employee/HistoryDetail";
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminCourses from "./pages/admin/Courses";
-import AdminMaterials from "./pages/admin/Materials";
+
 import AdminEmployees from "./pages/admin/Employees";
 
 
@@ -79,7 +79,7 @@ const App = () => (
               >
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/courses" element={<AdminCourses />} />
-                <Route path="/admin/materials" element={<AdminMaterials />} />
+                
                 <Route path="/admin/employees" element={<AdminEmployees />} />
                 
               </Route>

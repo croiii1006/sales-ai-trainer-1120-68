@@ -25,7 +25,6 @@ import {
   Sparkles, 
   LayoutDashboard,
   BookOpen,
-  FileText,
   Users,
   LogOut,
   User,
@@ -35,7 +34,6 @@ import {
 const menuItems = [
   { title: "仪表盘", url: "/admin", icon: LayoutDashboard },
   { title: "课程管理", url: "/admin/courses", icon: BookOpen },
-  { title: "培训资料", url: "/admin/materials", icon: FileText },
   { title: "员工管理", url: "/admin/employees", icon: Users },
 ];
 
