@@ -19,6 +19,7 @@ import Courses from "./pages/employee/Courses";
 import ChapterDetail from "./pages/employee/ChapterDetail";
 import Simulation from "./pages/employee/Simulation";
 import Reports from "./pages/employee/Reports";
+import History from "./pages/employee/History";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -63,6 +64,7 @@ const App = () => (
                 <Route path="/courses/:chapterId" element={<ChapterDetail />} />
                 <Route path="/simulation" element={<Simulation />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/history" element={<History />} />
               </Route>
 
               {/* Admin routes */}

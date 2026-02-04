@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { TrendingUp, Target, Award, AlertCircle, Sparkles } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 import ExportReportBar from "@/components/reports/ExportReportBar";
-import HistoryDialog from "@/components/reports/HistoryDialog";
+import HistoryCard from "@/components/reports/HistoryCard";
 import { useReportExport } from "@/hooks/useReportExport";
 interface SimulationSession {
   id: string;
@@ -345,16 +345,10 @@ const Reports = () => {
 
         {/* Score Trend - Bar Chart */}
         <Card className="shadow-card">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <div>
               <CardTitle>得分趋势</CardTitle>
               <CardDescription>最近 {trendData.length} 次模拟得分</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <HistoryDialog sessions={displaySessions} />
-              <Badge variant="secondary" className="bg-muted">
-                过去 30 天
-              </Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -426,6 +420,9 @@ const Reports = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* History Card */}
+      <HistoryCard />
 
       {/* Recent Feedback */}
       {displaySessions[0]?.feedback && <Card className="shadow-card">
