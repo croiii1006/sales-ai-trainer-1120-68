@@ -28,7 +28,6 @@ const Simulation = () => {
   const chapterId = searchParams.get("chapter");
 
   // Configuration state
-  const [brand, setBrand] = useState("");
   const [persona, setPersona] = useState("");
   const [scenario, setScenario] = useState("");
   const [difficulty, setDifficulty] = useState("");
@@ -157,7 +156,7 @@ const Simulation = () => {
   };
 
   const handleStartSession = async () => {
-    if (!brand || !persona || !scenario || !difficulty) {
+    if (!persona || !scenario || !difficulty) {
       toast({
         title: "配置不完整",
         description: "请先完成所有配置项",
@@ -169,7 +168,6 @@ const Simulation = () => {
     setIsLoading(true);
     try {
       const response = await startSessionWithTrae({
-        brand: brand || "Gucci",
         persona: PERSONA_MAP[persona],
         scenario: SCENARIO_MAP[scenario],
         difficulty: DIFFICULTY_MAP[difficulty],
@@ -178,7 +176,6 @@ const Simulation = () => {
       setSessionId(response.sessionId);
       // 保存配置，用于后续评分
       setSessionConfig({
-        brand: brand || "Gucci",
         personaId: PERSONA_MAP[persona],
         scenarioId: SCENARIO_MAP[scenario],
         difficulty: DIFFICULTY_MAP[difficulty],
@@ -285,7 +282,7 @@ const Simulation = () => {
         await supabase.from("simulation_sessions").insert({
           user_id: user.id,
           chapter_id: chapterId || null,
-          brand: sessionConfig.brand || brand,
+          brand: "通用",
           persona: persona,
           scenario: scenario,
           difficulty: difficulty,
@@ -322,7 +319,6 @@ const Simulation = () => {
   };
 
   const handleReset = () => {
-    setBrand("");
     setPersona("");
     setScenario("");
     setDifficulty("");
@@ -350,11 +346,9 @@ const Simulation = () => {
         {/* Left Panel - Config */}
         <div className="lg:col-span-3">
           <ConfigPanel
-            brand={brand}
             persona={persona}
             scenario={scenario}
             difficulty={difficulty}
-            onBrandChange={setBrand}
             onPersonaChange={setPersona}
             onScenarioChange={setScenario}
             onDifficultyChange={setDifficulty}

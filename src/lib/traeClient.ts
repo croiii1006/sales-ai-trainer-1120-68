@@ -89,7 +89,6 @@ async function kimiRequest(messages: any[]) {
 // 1. 启动 Session（两阶段：先生成人设，再开始对话）
 // -------------------------------
 export async function startSessionWithTrae(config: {
-  brand: string;
   persona: string;
   scenario: string;
   difficulty: string;
