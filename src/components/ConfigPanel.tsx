@@ -79,14 +79,13 @@ const ConfigPanel = ({
           </Label>
           <Select value={scenario} onValueChange={onScenarioChange} disabled={disabled}>
             <SelectTrigger id="scenario" className="bg-secondary border-border">
-              <SelectValue placeholder="选择场景" />
+              <SelectValue placeholder="选择销售场景" />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
-              <SelectItem value="首次进店">首次进店</SelectItem>
-              <SelectItem value="VIP 回访">VIP 回访</SelectItem>
-              <SelectItem value="购买送老板的礼物">购买送老板的礼物</SelectItem>
-              <SelectItem value="机场免税店场景">机场免税店场景</SelectItem>
-              <SelectItem value="线上咨询">线上咨询</SelectItem>
+              <SelectItem value="首次触达">首次触达</SelectItem>
+              <SelectItem value="需求挖掘">需求挖掘</SelectItem>
+              <SelectItem value="异议处理">异议处理</SelectItem>
+              <SelectItem value="成交推进">成交推进</SelectItem>
             </SelectContent>
           </Select>
         </div>
