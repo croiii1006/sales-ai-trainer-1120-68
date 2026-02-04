@@ -290,24 +290,22 @@ const Courses = () => {
 
         <TabsContent value="courses" className="space-y-6 mt-4">
           {/* Overall Progress */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">总体学习进度</span>
-                <span className="text-sm text-muted-foreground">
-                  {Object.values(progress).filter((p) => p.completed_at).length} / {chapters.length} 章节完成
-                </span>
-              </div>
-              <Progress 
-                value={
-                  chapters.length > 0 
-                    ? (Object.values(progress).filter((p) => p.completed_at).length / chapters.length) * 100
-                    : 0
-                } 
-                className="h-2"
-              />
-            </CardContent>
-          </Card>
+          <div className="py-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">总体学习进度</span>
+              <span className="text-sm text-muted-foreground">
+                {Object.values(progress).filter((p) => p.completed_at).length} / {chapters.length} 章节完成
+              </span>
+            </div>
+            <Progress 
+              value={
+                chapters.length > 0 
+                  ? (Object.values(progress).filter((p) => p.completed_at).length / chapters.length) * 100
+                  : 0
+              } 
+              className="h-2"
+            />
+          </div>
 
           {Object.keys(filteredGroupedChapters).length === 0 ? (
             <Card>
